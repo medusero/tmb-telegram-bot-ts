@@ -5,15 +5,15 @@
   "main": "dist/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx --watch src/main.ts",
+    "dev": "tsx --watch --env-file=.env src/main.ts",
     "build": "tsc",
-    "start": "node dist/main.js",
+    "start": "node --env-file=.env dist/main.js",
     "format": "prettier --write ."
   },
   "keywords": [],
   "type": "module",
   "devDependencies": {
-    "@types/node": "^22",
+    "@types/node": "^24",
     "prettier": "^3.9.6",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2"
