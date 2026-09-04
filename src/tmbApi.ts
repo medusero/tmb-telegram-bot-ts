@@ -1,8 +1,9 @@
 import { z, ZodError } from "zod";
 import { URLSearchParams } from "node:url";
 import { config } from "./config.js";
+import { AppError } from "./errors.js";
 
-class TmbApiError extends Error {
+class TmbApiError extends AppError {
   status: number;
   constructor(status: number) {
     super(`Error de la API: Código de estado ${status}`);
@@ -11,7 +12,7 @@ class TmbApiError extends Error {
   }
 }
 
-class NetworkError extends Error {
+class NetworkError extends AppError {
   constructor(
     cause: unknown,
     message: string = "No se pudo conectar con la API",
@@ -23,7 +24,7 @@ class NetworkError extends Error {
   }
 }
 
-class InvalidResponseShapeError extends Error {
+class InvalidResponseShapeError extends AppError {
   constructor(
     cause: unknown,
     message: string = "La respuesta de la API no tiene el formato esperado",
@@ -35,7 +36,7 @@ class InvalidResponseShapeError extends Error {
   }
 }
 
-class InvalidJsonError extends Error {
+class InvalidJsonError extends AppError {
   constructor(
     cause: unknown,
     message: string = "La API no responde con ningún formato aceptable",
