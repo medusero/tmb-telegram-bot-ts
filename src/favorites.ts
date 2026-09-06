@@ -10,7 +10,9 @@ const joinPath = join(moduleDir, "..", "data", "favorites.json");
 const cleanPath = resolve(joinPath);
 
 const favoritesSchema = z.record(z.string(), z.string());
+
 type Favorites = z.infer<typeof favoritesSchema>;
+export type FavoriteEntries = [string, string][];
 
 class CorruptFavoritesFileError extends AppError {
   constructor(
@@ -89,7 +91,7 @@ export async function deleteFavorites(alias: string): Promise<string> {
   return extractedValue;
 }
 
-export async function listFavorites(): Promise<[string, string][]> {
+export async function listFavorites(): Promise<FavoriteEntries> {
   const favorites = Object.entries(await loadFavorites());
   return favorites;
 }
