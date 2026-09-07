@@ -102,7 +102,9 @@ async function fetchArrivalsResponse(stopCode: string) {
 }
 
 export async function getArrivals(stopCode: string) {
-  const response = await fetchArrivalsResponse(stopCode);
+  const stopCodeNumber = Number(stopCode);
+  const stopCodeString = String(stopCodeNumber);
+  const response = await fetchArrivalsResponse(stopCodeString);
   if (!response.ok) {
     throw new TmbApiError(response.status);
   }
