@@ -91,6 +91,12 @@ export async function deleteFavorites(alias: string): Promise<string> {
   return extractedValue;
 }
 
+export async function addFavorite(alias: string, code: string): Promise<void> {
+  const favorites = await loadFavorites();
+  const newFavorites = { ...favorites, [alias]: code };
+  await saveFavorites(newFavorites);
+}
+
 export async function listFavorites(): Promise<FavoriteEntries> {
   const favorites = Object.entries(await loadFavorites());
   return favorites;
