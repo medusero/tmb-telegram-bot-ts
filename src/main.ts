@@ -167,4 +167,19 @@ bot.catch(async (err) => {
   }
 });
 
-bot.start();
+const stopBot = async () => {
+  try {
+    console.log("Deteniendo bot de forma ordenada...");
+    await bot.stop();
+    await botState;
+    console.log("Bot detenido correctamente");
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+};
+
+process.once("SIGINT", stopBot);
+process.once("SIGTERM", stopBot);
+
+const botState = bot.start();
