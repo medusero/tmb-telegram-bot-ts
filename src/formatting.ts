@@ -5,6 +5,25 @@ import { format, differenceInMinutes } from "date-fns";
 
 const TZ = "Europe/Madrid";
 
+export function startMessage(): string {
+  const messageLines = [
+    "Este bot puede obtener tiempos de llegadas de buses TMB.",
+    "Escribe /ayuda para una lista de opciones disponibles.",
+  ];
+  return messageLines.join("\n");
+}
+
+export function helpMessage(): string {
+  const messageLines = [
+    "Escribe un código de parada directamente",
+    "Guarda una parada favorita con /guardar",
+    "Lista tus favoritos con /favoritos",
+    "Borra una parada favorita con /borrar",
+    "Cancela una operación con /cancelar",
+  ];
+  return messageLines.join("\n");
+}
+
 export function formatFavorites(favorites: FavoriteEntries): string {
   const lines = favorites.map(([alias, code]) => `${alias}: ${code}`);
   const favoritesText = lines.join("\n");
