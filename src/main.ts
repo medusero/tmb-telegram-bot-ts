@@ -1,11 +1,17 @@
 import { getArrivals } from "./tmbApi.js";
-import { addFavorite, listFavorites } from "./favorites.js";
+import { addFavorite, deleteFavorites, listFavorites } from "./favorites.js";
 import { config } from "./config.js";
-import { formatArrivals, formatFavorites } from "./formatting.js";
+import {
+  startMessage,
+  helpMessage,
+  formatArrivals,
+  formatFavorites,
+} from "./formatting.js";
 import { AppError } from "./errors.js";
 import {
   Bot,
   Context,
+  InlineKeyboard,
   session,
   type NextFunction,
   type SessionFlavor,
@@ -70,10 +76,47 @@ async function handleSaveStep(
 }
 
 bot.use(authResponse);
+
 bot.use(session({ initial }));
+
+bot.command("cancelar", async (ctx) => {
+  ctx.session = { state: "none" };
+  await ctx.reply("Operación cancelada.");
+});
+
+bot.command("guardar", async (ctx) => {
+  ctx.session = { state: "waitingAlias" };
+  await ctx.reply("¿Cuál es el alias de la parada?");
+});
+
 bot.use(handleSaveStep);
-bot.command("cancelar");
-bot.command("guardar");
+
+bot.callbackQuery(/delete:(\d{1,2})/, async (ctx) => {
+  const index = Number(ctx.match[1]);
+  const favorites = await listFavorites();
+  if (favorites[index] === undefined) {
+    await ctx.reply("Ese favorito no existe");
+    await ctx.answerCallbackQuery();
+  } else {
+    const [alias] = favorites[index];
+    await deleteFavorites(alias);
+    await ctx.answerCallbackQuery();
+    const newFavorites = await listFavorites();
+    if (newFavorites.length === 0) {
+      await ctx.editMessageText("No queda ningún favorito", {
+        reply_markup: new InlineKeyboard(),
+      });
+    } else {
+      const inlineKeyboard = new InlineKeyboard();
+      newFavorites.forEach(([newAlias], newIndex) => {
+        inlineKeyboard.text(newAlias, `delete:${newIndex}`).row();
+      });
+      await ctx.editMessageText("¿Quieres borrar otro favorito?", {
+        reply_markup: inlineKeyboard,
+      });
+    }
+  }
+});
 
 bot.hears(/^\d{1,4}$/, async (ctx) => {
   const stopCode = ctx.match[0];
@@ -85,8 +128,10 @@ bot.hears(/^\d{1,4}$/, async (ctx) => {
   }
 });
 
-bot.command("start", (ctx) => ctx.reply("Iniciado"));
-bot.command("ayuda", (ctx) => ctx.reply("Texto temporal de ayuda"));
+bot.command("start", (ctx) => ctx.reply(startMessage()));
+
+bot.command("ayuda", (ctx) => ctx.reply(helpMessage()));
+
 bot.command("favoritos", async (ctx) => {
   const entries = await listFavorites();
   if (entries.length === 0) {
@@ -95,6 +140,22 @@ bot.command("favoritos", async (ctx) => {
     await ctx.reply(formatFavorites(entries));
   }
 });
+
+bot.command("borrar", async (ctx) => {
+  const entries = await listFavorites();
+  if (entries.length === 0) {
+    await ctx.reply("No tienes ningún favorito guardado");
+  } else {
+    const inlineKeyboard = new InlineKeyboard();
+    entries.forEach(([alias], index) => {
+      inlineKeyboard.text(alias, `delete:${index}`).row();
+    });
+    await ctx.reply("Elige qué favorito quieres borrar", {
+      reply_markup: inlineKeyboard,
+    });
+  }
+});
+
 bot.on("message", async (ctx) => await ctx.reply("No he entendido tu mensaje"));
 
 bot.catch(async (err) => {
@@ -105,4 +166,5 @@ bot.catch(async (err) => {
     await err.ctx.reply("Ha ocurrido un error no previsto");
   }
 });
+
 bot.start();
