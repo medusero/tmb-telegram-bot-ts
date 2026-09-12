@@ -1,6 +1,8 @@
 import { es, ca, en } from "./messages.js";
 
-type SupportedLanguage = "es" | "ca" | "en";
+export type SupportedLanguage = "es" | "ca" | "en";
+
+export type LanguageFlavor = { language: SupportedLanguage };
 
 export const registry: Record<SupportedLanguage, typeof es> = { es, ca, en };
 
