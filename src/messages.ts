@@ -1,3 +1,5 @@
+import { type BotCommand } from "grammy/types";
+
 export const es = {
   common: {
     start: `Este bot puede obtener tiempos de llegadas de buses TMB (test).
@@ -27,6 +29,29 @@ Cancela una operación con /cancelar.`,
       `Favorito guardado: "${alias}" (parada ${code}).`,
     line: (lineName: string, arrivalTimesText: string) =>
       `Línea ${lineName}: ${arrivalTimesText}`,
+  },
+  commands: [
+    { command: "help", description: `Muestra la ayuda.` },
+    { command: "save", description: `Guarda una parada.` },
+    { command: "favorites", description: `Lista tus paradas.` },
+    { command: "delete", description: `Borra una parada.` },
+    { command: "cancel", description: `Cancela la operación.` },
+  ] as BotCommand[],
+  errors: {
+    common: {
+      networkError: `No se pudo conectar con la API.`,
+      invalidResponseShape: `La respuesta de la API no tiene el formato esperado.`,
+      invalidJson: `La API no responde con ningún formato aceptable.`,
+      timeout: `La API está tardando en responder.`,
+      corruptFavoriteFile: `El archivo de favoritos está corrupto.`,
+      invalidFavoriteShape: `El archivo de favoritos no tiene una forma reconocible.`,
+      favoritesSaveError: `No se pudo guardar el archivo de favoritos.`,
+      favoriteNotFound: `Ese alias no existe en el archivo.`,
+    },
+    templates: {
+      tmbApiError: (status: number) =>
+        `Error de la API: Código de estado ${status}`,
+    },
   },
 };
 
@@ -60,6 +85,28 @@ Cancel·la una operació amb /cancelar.`,
     line: (lineName: string, arrivalTimesText: string) =>
       `Línia ${lineName}: ${arrivalTimesText}`,
   },
+  commands: [
+    { command: "help", description: `Mostra l'ajuda.` },
+    { command: "save", description: `Desa una parada.` },
+    { command: "favorites", description: `Llista les teves parades.` },
+    { command: "delete", description: `Esborra una parada.` },
+    { command: "cancel", description: `Cancel·la l'operació.` },
+  ],
+  errors: {
+    common: {
+      networkError: `No s'ha pogut connectar amb l'API.`,
+      invalidResponseShape: `La resposta de l'API no té el format esperat.`,
+      invalidJson: `L'API no respon amb cap format acceptable.`,
+      timeout: `L'API està trigant a respondre.`,
+      corruptFavoriteFile: `El fitxer de favorits està corromput.`,
+      invalidFavoriteShape: `El fitxer de favorits no té una forma reconeixible.`,
+      favoritesSaveError: `No s'ha pogut desar el fitxer de favorits.`,
+      favoriteNotFound: `Aquest àlies no existeix al fitxer.`,
+    },
+    templates: {
+      tmbApiError: (status: number) => `Error de l'API: Codi d'estat ${status}`,
+    },
+  },
 };
 
 export const en: typeof es = {
@@ -91,5 +138,27 @@ Cancel an operation with /cancelar.`,
       `Favorite saved: "${alias}" (stop ${code}).`,
     line: (lineName: string, arrivalTimesText: string) =>
       `Line ${lineName}: ${arrivalTimesText}`,
+  },
+  commands: [
+    { command: "help", description: `Show help.` },
+    { command: "save", description: `Save a stop.` },
+    { command: "favorites", description: `List your stops.` },
+    { command: "delete", description: `Delete a stop.` },
+    { command: "cancel", description: `Cancel the operation.` },
+  ],
+  errors: {
+    common: {
+      networkError: `Could not connect to the API.`,
+      invalidResponseShape: `The API response doesn't have the expected format.`,
+      invalidJson: `The API isn't responding with any acceptable format.`,
+      timeout: `The API is taking too long to respond.`,
+      corruptFavoriteFile: `The favorites file is corrupted.`,
+      invalidFavoriteShape: `The favorites file doesn't have a recognizable shape.`,
+      favoritesSaveError: `Could not save the favorites file.`,
+      favoriteNotFound: `That alias doesn't exist in the file.`,
+    },
+    templates: {
+      tmbApiError: (status: number) => `API error: status code ${status}`,
+    },
   },
 };

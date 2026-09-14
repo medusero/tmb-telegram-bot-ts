@@ -1,60 +1,7 @@
 import { z, ZodError } from "zod";
 import { URLSearchParams } from "node:url";
 import { config } from "./config.js";
-import { AppError } from "./errors.js";
-
-class TmbApiError extends AppError {
-  status: number;
-  constructor(status: number) {
-    super(`Error de la API: Código de estado ${status}`);
-    this.name = "TmbApiError";
-    this.status = status;
-  }
-}
-
-class NetworkError extends AppError {
-  constructor(
-    cause: unknown,
-    message: string = "No se pudo conectar con la API",
-  ) {
-    super(message, {
-      cause,
-    });
-    this.name = "NetworkError";
-  }
-}
-
-class InvalidResponseShapeError extends AppError {
-  constructor(
-    cause: unknown,
-    message: string = "La respuesta de la API no tiene el formato esperado",
-  ) {
-    super(message, {
-      cause,
-    });
-    this.name = "InvalidResponseShapeError";
-  }
-}
-
-class InvalidJsonError extends AppError {
-  constructor(
-    cause: unknown,
-    message: string = "La API no responde con ningún formato aceptable",
-  ) {
-    super(message, { cause });
-    this.name = "InvalidJsonError";
-  }
-}
-
-class TimeoutError extends NetworkError {
-  constructor(
-    cause: unknown,
-    message: string = "La API está tardando en responder",
-  ) {
-    super(cause, message);
-    this.name = "TimeoutError";
-  }
-}
+import { AppTextError, AppDataError } from "./errors.js";
 
 function buildArrivalsUrl(stopCode: string): string {
   const params = new URLSearchParams({
@@ -94,9 +41,9 @@ async function fetchArrivalsResponse(stopCode: string) {
     return response;
   } catch (cause) {
     if (cause instanceof DOMException && cause.name === "TimeoutError") {
-      throw new TimeoutError(cause);
+      throw new AppTextError("timeout", cause);
     } else {
-      throw new NetworkError(cause);
+      throw new AppTextError("networkError", cause);
     }
   }
 }
@@ -106,16 +53,16 @@ export async function getArrivals(stopCode: string) {
   const stopCodeString = String(stopCodeNumber);
   const response = await fetchArrivalsResponse(stopCodeString);
   if (!response.ok) {
-    throw new TmbApiError(response.status);
+    throw new AppDataError("tmbApiError", response.status);
   }
   try {
     const rawObject = apiSchema.parse(await response.json());
     return toLineArrivals(rawObject.parades[0]!.linies_trajectes);
   } catch (cause) {
     if (cause instanceof ZodError) {
-      throw new InvalidResponseShapeError(cause);
+      throw new AppTextError("invalidResponseShape", cause);
     } else if (cause instanceof SyntaxError) {
-      throw new InvalidJsonError(cause);
+      throw new AppTextError("invalidJson", cause);
     } else {
       throw cause;
     }

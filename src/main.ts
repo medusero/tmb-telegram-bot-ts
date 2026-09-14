@@ -7,7 +7,12 @@ import {
   formatFavoriteSaved,
 } from "./formatting.js";
 import { AppError } from "./errors.js";
-import { type LanguageFlavor, resolveLanguage, t } from "./i18n.js";
+import {
+  type LanguageFlavor,
+  resolveErrorMessage,
+  resolveLanguage,
+  t,
+} from "./i18n.js";
 import {
   Bot,
   Context,
@@ -27,7 +32,6 @@ const bot = new Bot<MyContext>(config.TELEGRAM_BOT_TOKEN);
 
 async function userLanguage(ctx: MyContext, next: NextFunction): Promise<void> {
   ctx.language = resolveLanguage(ctx.from?.language_code);
-  console.log(ctx.from?.language_code);
   await next();
 }
 
@@ -168,7 +172,7 @@ bot.on(
 
 bot.catch(async (err) => {
   if (err.error instanceof AppError) {
-    await err.ctx.reply(err.error.message);
+    await err.ctx.reply(resolveErrorMessage(err.ctx.language, err.error));
   } else {
     console.error(err.error);
     await err.ctx.reply(t(err.ctx.language, "unexpectedError"));

@@ -1,4 +1,5 @@
 import { es, ca, en } from "./messages.js";
+import { AppError, AppTextError, AppDataError } from "./errors.js";
 
 export type SupportedLanguage = "es" | "ca" | "en";
 
@@ -19,6 +20,21 @@ export function resolveLanguage(
     return "en";
   } else {
     return "en";
+  }
+}
+
+export function resolveErrorMessage(
+  language: SupportedLanguage,
+  error: AppError,
+): string {
+  if (error instanceof AppTextError) {
+    return registry[language].errors.common[error.key];
+  } else if (error instanceof AppDataError) {
+    return registry[language].errors.templates[error.key](error.status);
+  } else {
+    throw new Error(
+      `Nueva subclase de error no prevista: ${error.constructor.name}`,
+    );
   }
 }
 
