@@ -2,7 +2,7 @@ import { type BotCommand } from "grammy/types";
 
 export const es = {
   common: {
-    start: `Este bot puede obtener tiempos de llegadas de buses TMB (test).
+    start: `Este bot puede obtener tiempos de llegadas de buses TMB.
 Escribe /help para una lista de opciones disponibles.`,
     help: `Escribe un código de parada directamente.
 Guarda una parada favorita con /save.
