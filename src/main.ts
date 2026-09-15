@@ -9,6 +9,7 @@ import {
 import { AppError } from "./errors.js";
 import {
   type LanguageFlavor,
+  registry,
   resolveErrorMessage,
   resolveLanguage,
   t,
@@ -45,6 +46,16 @@ async function authResponse(ctx: MyContext, next: NextFunction): Promise<void> {
 
 function initial(): State {
   return { state: "none" };
+}
+
+async function registerCommands(bot: Bot<MyContext>): Promise<void> {
+  try {
+    await bot.api.setMyCommands(registry.es.commands);
+    await bot.api.setMyCommands(registry.ca.commands, { language_code: "ca" });
+    await bot.api.setMyCommands(registry.en.commands, { language_code: "en" });
+  } catch {
+    console.error("No se ha encontrado ningún idioma: recurriendo a default");
+  }
 }
 
 async function handleSaveStep(
@@ -88,12 +99,12 @@ bot.use(authResponse);
 
 bot.use(session({ initial }));
 
-bot.command("cancelar", async (ctx) => {
+bot.command("cancel", async (ctx) => {
   ctx.session = { state: "none" };
   await ctx.reply(t(ctx.language, "cancelled"));
 });
 
-bot.command("guardar", async (ctx) => {
+bot.command("save", async (ctx) => {
   ctx.session = { state: "waitingAlias" };
   await ctx.reply(t(ctx.language, "askAlias"));
 });
@@ -139,9 +150,9 @@ bot.hears(/^\d{1,4}$/, async (ctx) => {
 
 bot.command("start", (ctx) => ctx.reply(t(ctx.language, "start")));
 
-bot.command("ayuda", (ctx) => ctx.reply(t(ctx.language, "help")));
+bot.command("help", (ctx) => ctx.reply(t(ctx.language, "help")));
 
-bot.command("favoritos", async (ctx) => {
+bot.command("favorites", async (ctx) => {
   const entries = await listFavorites();
   if (entries.length === 0) {
     await ctx.reply(t(ctx.language, "noFavoritesSaved"));
@@ -150,7 +161,7 @@ bot.command("favoritos", async (ctx) => {
   }
 });
 
-bot.command("borrar", async (ctx) => {
+bot.command("delete", async (ctx) => {
   const entries = await listFavorites();
   if (entries.length === 0) {
     await ctx.reply(t(ctx.language, "noFavoritesSaved"));
@@ -181,10 +192,8 @@ bot.catch(async (err) => {
 
 const stopBot = async () => {
   try {
-    console.log("Deteniendo bot de forma ordenada...");
     await bot.stop();
     await botState;
-    console.log("Bot detenido correctamente");
   } catch (err) {
     console.error(err);
     process.exit(1);
@@ -193,5 +202,7 @@ const stopBot = async () => {
 
 process.once("SIGINT", stopBot);
 process.once("SIGTERM", stopBot);
+
+await registerCommands(bot);
 
 const botState = bot.start();
