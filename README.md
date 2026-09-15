@@ -66,8 +66,6 @@ podman unshare chown 65532:65532 data
 podman run -d --name tmb-bot --env-file .env -v ./data:/app/data:Z --restart unless-stopped tmb-bot
 ```
 #### Como quadlet bajo systemd
-Este es el modo de despliegue real usado en producción para este proyecto: no hace falta construir la imagen a mano de antemano, el propio quadlet se encarga de reconstruirla cuando arranca el servicio, a partir del `Containerfile` del repositorio ya clonado.
-
 Crea el archivo `$HOME/.config/containers/systemd/tmb-bot.build` con este contenido (sustituye `RUTA_AL_REPO_CLONADO` por la ruta real donde dejes el repositorio clonado de forma permanente en el servidor):
 ```ini
 [Build]
